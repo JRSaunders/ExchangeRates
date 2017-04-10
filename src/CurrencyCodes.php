@@ -1,7 +1,10 @@
 <?php
 namespace ExchangeRates;
 
-
+/**
+ * Class CurrencyCodes
+ * @package ExchangeRates
+ */
 class CurrencyCodes
 {
     private $codes = array(

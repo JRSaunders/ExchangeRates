@@ -7,23 +7,30 @@ namespace ExchangeRates;
  */
 class Query
 {
+
     private $format = 'json';
-    private $fromCurrency;
-    private $toCurrency = 'GBP';
+    private $fromCurrency = false;
+    private $toCurrency = false;
     protected $url = '';
     protected $params = '';
+    protected $rawData = '';
     /**
      * @var CurrencyCodes
      */
     protected $codes;
 
     /**
-     * @param $currency
+     * @param bool|string $fromCurrency
+     * @param bool|string $toCurrency
+     * @param string $format
      */
-    public function construct($fromCurrency, $toCurrency)
+    public function __construct($fromCurrency = false, $toCurrency = false, $format = 'json')
     {
+
         $this->codes = new CurrencyCodes();
-        $this->setFromCurrency($currency);
+        $this->setFromCurrency($fromCurrency);
+        $this->setToCurrency($toCurrency);
+        $this->setFormat($format);
     }
 
     /**
@@ -51,11 +58,13 @@ class Query
     }
 
     /**
-     * @param string $toCurrency
+     * @param $currency
      */
-    public function setToCurrency($toCurrency)
+    public function setToCurrency($currency)
     {
-        $this->toCurrency = $toCurrency;
+        if ($this->codes->isValid($currency)) {
+            $this->toCurrency = $currency;
+        }
     }
 
     /**
@@ -67,7 +76,7 @@ class Query
     }
 
     /**
-     * @param string $format
+     * @param $format
      */
     public function setFormat($format)
     {
@@ -118,13 +127,19 @@ class Query
         }
         $format = $this->getFormat();
         $url = 'http://query.yahooapis.com/v1/public/yql';
-        $params = 'q=select * from yahoo.finance.xchange where pair in ("';
+        $params = 'q=select * from yahoo.finance.xchange where pair in (';
 
         if ($finalFromCurrency && $finalToCurrency) {
-            $params .= $finalFromCurrency . $finalToCurrency;
+            $params .= '"' . $finalFromCurrency . $finalToCurrency . '"';
+        } elseif ($fromCurrency) {
+            $paramsArray = array();
+            foreach ($this->codes->getCodes() as $code) {
+                $paramsArray[] .= '"' . $finalFromCurrency . $code . '"';
+            }
+            $params .= join(',', $paramsArray);
         }
 
-        $params .= '")';
+        $params .= ')';
         $params .= '&env=store://datatables.org/alltableswithkeys&format=' . $format;
         $this->url = $url;
         $this->params = $params;
@@ -132,13 +147,34 @@ class Query
         return $this;
     }
 
+    /**
+     * @param bool $fromCurrency
+     * @param bool $toCurrency
+     */
     public function execute($fromCurrency = false, $toCurrency = false)
     {
         $this->buildQuery($fromCurrency, $toCurrency);
         $url = $this->getUrl();
         $params = $this->getParams();
+        $rawData = $this->curl($url, $params);
+        $this->rawData = $rawData;
+        return $this;
+    }
 
-        $rawData = $this->curl($url,$params);
+    public function getData()
+    {
+
+        $format = $this->getFormat();
+
+        switch ($format) {
+            case 'json':
+                return json_decode($this->getRawData());
+                break;
+            case 'xml':
+                return simplexml_load_string($this->getRawData());
+                break;
+        }
+
 
     }
 
@@ -199,6 +235,14 @@ class Query
         curl_close($ch);
 
         return $response;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRawData()
+    {
+        return $this->rawData;
     }
 
 
