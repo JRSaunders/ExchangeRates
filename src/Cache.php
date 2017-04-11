@@ -6,7 +6,22 @@ namespace ExchangeRates;
  */
 class Cache
 {
+    /**
+     * @var array
+     */
+    protected static $cachedDataArray = array();
+    /**
+     * @var bool|string
+     */
     protected static $cachePath = false;
+    /**
+     * @var null|string
+     */
+    protected $rawData = null;
+    /**
+     * @var null|\stdClass
+     */
+    protected $data = null;
 
     /**
      * @return bool|string
@@ -27,14 +42,37 @@ class Cache
         static::$cachePath = $cachePath;
     }
 
-    public function saveToCache($filename = null)
+    public function saveToCache($filename = null, $data = null)
     {
         if ($this->getCachePath() && !empty($filename)) {
-            $filename = $this->prepareFilename($filename);
-            /**
-             * TODO save to cache
-             */
+            $filePath = $this->getCachePath() . $this->prepareFilename($filename);
+            $jsonData = json_encode($data);
+            return file_put_contents($filePath, $jsonData);
         }
+        return true;
+    }
+
+    public function getCacheData($filename, $ttlSeconds = 12000, $removeOld = true)
+    {
+        if ($this->getCachePath() && !empty($filename)) {
+            $filePath = $this->getCachePath() . $this->prepareFilename($filename);
+
+            if (isset(static::$cachedDataArray[$filePath])) {
+                return $this->data = static::$cachedDataArray[$filePath];
+            }
+
+            if (!file_exists($filePath)) {
+                return false;
+            }
+
+            if ((time() - filemtime($filePath)) <= $ttlSeconds) {
+                $this->rawData = file_get_contents($filePath);
+                return static::$cachedDataArray[$filePath] = $this->data = json_decode($this->rawData);
+            } elseif ($removeOld) {
+                unlink($filePath);
+            }
+        }
+        return false;
     }
 
     protected function prepareFilename($filename)
@@ -43,7 +81,7 @@ class Cache
         $filename = $this->normalizeString($filename);
         $filename = str_replace('.XchgeCache', '', $filename);
 
-        return $filename;
+        return $filename . '.XchgeCache';
     }
 
     public function normalizeString($str = '')
@@ -59,5 +97,21 @@ class Cache
         $str = rawurlencode($str);
         $str = str_replace('%', '-', $str);
         return $str;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRawData()
+    {
+        return $this->rawData;
+    }
+
+    /**
+     * @return null
+     */
+    public function getData()
+    {
+        return $this->data;
     }
 }
