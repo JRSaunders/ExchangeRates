@@ -1,7 +1,10 @@
 <?php
 
 namespace ExchangeRates;
-
+/**
+ * Class Conversion
+ * @package ExchangeRates
+ */
 class Conversion
 {
     protected $cache;
@@ -10,7 +13,14 @@ class Conversion
     protected $rate = 0;
     protected $value = 0;
 
-    public function __construct($fromCurrency, $toCurrency, $value, $ttl = 12000)
+    /**
+     * Conversion constructor.
+     * @param $fromCurrency
+     * @param $toCurrency
+     * @param $value
+     * @param int $ttl
+     */
+    public function __construct($fromCurrency, $toCurrency, $value, $ttl = 86400)
     {
 
         $this->cache = new Cache();
@@ -27,6 +37,9 @@ class Conversion
         $this->value = $value;
     }
 
+    /**
+     * @return int
+     */
     public function get()
     {
         return ($this->value * $this->rate);

@@ -42,6 +42,11 @@ class Cache
         static::$cachePath = $cachePath;
     }
 
+    /**
+     * @param null $filename
+     * @param null $data
+     * @return bool|int
+     */
     public function saveToCache($filename = null, $data = null)
     {
         if ($this->getCachePath() && !empty($filename)) {
@@ -52,7 +57,13 @@ class Cache
         return true;
     }
 
-    public function getCacheData($filename, $ttlSeconds = 12000, $removeOld = true)
+    /**
+     * @param $filename
+     * @param int $ttlSeconds
+     * @param bool $removeOld
+     * @return bool|mixed
+     */
+    public function getCacheData($filename, $ttlSeconds = 120000, $removeOld = true)
     {
         if ($this->getCachePath() && !empty($filename)) {
             $filePath = $this->getCachePath() . $this->prepareFilename($filename);
@@ -75,6 +86,10 @@ class Cache
         return false;
     }
 
+    /**
+     * @param $filename
+     * @return string
+     */
     protected function prepareFilename($filename)
     {
 
@@ -84,6 +99,10 @@ class Cache
         return $filename . '.XchgeCache';
     }
 
+    /**
+     * @param string $str
+     * @return mixed|string
+     */
     public function normalizeString($str = '')
     {
         $str = strip_tags($str);

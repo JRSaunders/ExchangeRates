@@ -7,12 +7,29 @@ namespace ExchangeRates;
  */
 class Query
 {
-
+    /**
+     * @var string
+     */
     private $format = 'json';
+    /**
+     * @var bool
+     */
     private $fromCurrency = false;
+    /**
+     * @var bool
+     */
     private $toCurrency = false;
+    /**
+     * @var string
+     */
     protected $url = '';
+    /**
+     * @var string
+     */
     protected $params = '';
+    /**
+     * @var string
+     */
     protected $rawData = '';
     /**
      * @var CurrencyCodes
@@ -104,6 +121,11 @@ class Query
         }
     }
 
+    /**
+     * @param bool $fromCurrency
+     * @param bool $toCurrency
+     * @return $this
+     */
     protected function buildQuery($fromCurrency = false, $toCurrency = false)
     {
 
@@ -178,6 +200,18 @@ class Query
 
     }
 
+    /**
+     * @param null $url
+     * @param null $params
+     * @param null $header
+     * @param int $connecttimeout
+     * @param int $timeout
+     * @param int $followloc
+     * @param int $redir
+     * @param string $user_agent
+     * @param bool $convert_params_array
+     * @return bool|mixed
+     */
     protected function curl(
         $url = NULL,
         $params = NULL,

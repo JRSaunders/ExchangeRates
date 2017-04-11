@@ -7,6 +7,9 @@ namespace ExchangeRates;
  */
 class CurrencyCodes
 {
+    /**
+     * @var array
+     */
     private $codes = array(
         'EUR',
         'GBP',
@@ -45,6 +48,10 @@ class CurrencyCodes
         'ISK'
     );
 
+    /**
+     * @param $code
+     * @return bool|string
+     */
     public function isValid($code)
     {
         $cleanCode = strtoupper($code);

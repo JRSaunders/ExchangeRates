@@ -2,7 +2,10 @@
 
 namespace ExchangeRates;
 
-
+/**
+ * Class RateQuery
+ * @package ExchangeRates
+ */
 class RateQuery extends Rate
 {
     protected $query;
