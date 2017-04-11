@@ -27,7 +27,6 @@ class Conversion
         $cacheFilename = $fromCurrency . $toCurrency . '-ratedata';
         $cachedRateData = $this->cache->getCacheData($cacheFilename, $ttl);
         if (!$cachedRateData) {
-            echo 'new q';
             $this->rateQuery = new RateQuery($fromCurrency, $toCurrency);
             $this->cache->saveToCache($cacheFilename, $this->rateQuery->getData());
             $cachedRateData = $this->rateQuery->getData();
