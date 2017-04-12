@@ -13,6 +13,7 @@ class RateQuery extends Rate
 
     public function __construct($fromCurrency, $toCurrency)
     {
+      
         $this->query = new Query();
         $this->data = $this->query->execute($fromCurrency, $toCurrency)->getData();
         if (!$this->data) {
